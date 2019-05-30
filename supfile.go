@@ -233,7 +233,7 @@ func (e *EnvList) ResolveValues() error {
 		}
 		var resolvedValue []byte
 		if runtime.GOOS == "windows" {
-			cmd := exec.Command("cmd", "/C", exports+"echo "+v.Value+";")
+			cmd := exec.Command("cmd", "/C", exports+"echo "+v.Value+"")
 			cmd.Dir = cwd
 			resolvedValue, err = cmd.Output()
 
@@ -248,7 +248,7 @@ func (e *EnvList) ResolveValues() error {
 		}
 		if runtime.GOOS == "windows" {
 			s := string(resolvedValue)
-			s = strings.TrimRight(s, "\n\t ")
+			s = strings.TrimRight(s, "\n\t\r ")
 			resolvedValue = []byte(s)
 		}
 
