@@ -29,6 +29,7 @@ type SSHClient struct {
 	running      bool
 	env          string //export FOO="bar"; export BAR="baz";
 	color        string
+	identityFile string
 }
 
 type ErrConnect struct {
@@ -80,7 +81,7 @@ var initAuthMethodOnce sync.Once
 var authMethod ssh.AuthMethod
 
 // initAuthMethod initiates SSH authentication method.
-func initAuthMethod() {
+func (c *SSHClient) initAuthMethod() {
 	var signers []ssh.Signer
 
 	// If there's a running SSH Agent, try to use its Private keys.
@@ -92,7 +93,7 @@ func initAuthMethod() {
 
 	// Try to read user's SSH private keys form the standard paths.
 	files, _ := filepath.Glob(os.Getenv("HOME") + "/.ssh/id_*")
-	for _, file := range files {
+	for _, file := range append(files, c.identityFile) {
 		if strings.HasSuffix(file, ".pub") {
 			continue // Skip public keys.
 		}
@@ -105,7 +106,6 @@ func initAuthMethod() {
 			continue
 		}
 		signers = append(signers, signer)
-
 	}
 	authMethod = ssh.PublicKeys(signers...)
 }
@@ -119,6 +119,10 @@ func (c *SSHClient) Connect(host string) error {
 	return c.ConnectWith(host, ssh.Dial)
 }
 
+func (c *SSHClient) SetIdentityFile(path string) {
+	c.identityFile = path
+}
+
 // ConnectWith creates a SSH connection to a specified host. It will use dialer to establish the
 // connection.
 // TODO: Split Signers to its own method.
@@ -127,7 +131,7 @@ func (c *SSHClient) ConnectWith(host string, dialer SSHDialFunc) error {
 		return fmt.Errorf("Already connected")
 	}
 
-	initAuthMethodOnce.Do(initAuthMethod)
+	initAuthMethodOnce.Do(c.initAuthMethod)
 
 	err := c.parseHost(host)
 	if err != nil {

@@ -74,6 +74,9 @@ func (sup *Stackup) Run(network *Network, envVars EnvList, commands ...*Command)
 				user:  network.User,
 				color: Colors[i%len(Colors)],
 			}
+			if network.IdentityFile != "" {
+				remote.SetIdentityFile(network.IdentityFile)
+			}
 
 			if bastion != nil {
 				if err := remote.ConnectWith(host, bastion.DialThrough); err != nil {

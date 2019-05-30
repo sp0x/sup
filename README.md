@@ -29,7 +29,7 @@ Stack Up is a simple deployment tool that performs given set of commands on mult
 | `--disable-prefix`| Disable hostname prefix          |
 | `--help`, `-h`    | Show help/usage                  |
 | `--version`, `-v` | Print version                    |
-
+| `--key`           | Identity file to use             |
 ## Network
 
 A group of hosts.

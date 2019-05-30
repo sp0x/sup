@@ -6,6 +6,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -162,6 +163,14 @@ func (e EnvVar) String() string {
 }
 
 // AsExport returns the environment variable as a bash export statement
+func (e EnvVar) AsLocalExport() string {
+	if runtime.GOOS == "windows" {
+		return `set ` + e.Key + `="` + e.Value + `" && `
+	} else {
+		return `export ` + e.Key + `="` + e.Value + `";`
+	}
+
+}
 func (e EnvVar) AsExport() string {
 	return `export ` + e.Key + `="` + e.Value + `";`
 }
@@ -217,17 +226,30 @@ func (e *EnvList) ResolveValues() error {
 
 	exports := ""
 	for i, v := range *e {
-		exports += v.AsExport()
-
-		cmd := exec.Command("bash", "-c", exports+"echo -n "+v.Value+";")
+		exports += v.AsLocalExport()
 		cwd, err := os.Getwd()
 		if err != nil {
 			return err
 		}
-		cmd.Dir = cwd
-		resolvedValue, err := cmd.Output()
+		var resolvedValue []byte
+		if runtime.GOOS == "windows" {
+			cmd := exec.Command("cmd", "/C", exports+"echo "+v.Value+";")
+			cmd.Dir = cwd
+			resolvedValue, err = cmd.Output()
+
+		} else {
+			cmd := exec.Command("bash", "-c", exports+"echo -n "+v.Value+";")
+			cmd.Dir = cwd
+			resolvedValue, err = cmd.Output()
+		}
+
 		if err != nil {
 			return errors.Wrapf(err, "resolving env var %v failed", v.Key)
+		}
+		if runtime.GOOS == "windows" {
+			s := string(resolvedValue)
+			s = strings.TrimRight(s, "\n\t ")
+			resolvedValue = []byte(s)
 		}
 
 		(*e)[i].Value = string(resolvedValue)
