@@ -6,6 +6,8 @@ import (
 	"os"
 	"os/exec"
 	"os/user"
+	"runtime"
+	"strings"
 
 	"github.com/pkg/errors"
 )
@@ -108,9 +110,19 @@ func (c *LocalhostClient) Signal(sig os.Signal) error {
 
 func ResolveLocalPath(cwd, path, env string) (string, error) {
 	// Check if file exists first. Use bash to resolve $ENV_VARs.
-	cmd := exec.Command("bash", "-c", env+"echo -n "+path)
-	cmd.Dir = cwd
-	resolvedFilename, err := cmd.Output()
+	var resolvedFilename []byte
+	var err error
+	if runtime.GOOS == "windows" {
+		//return "", fmt.Errorf("windows is not supported right now")
+		cmd := exec.Command("cmd", "/C", env+" & echo "+path)
+		cmd.Dir = cwd
+		resolvedFilename, err = cmd.Output()
+		resolvedFilename = []byte(strings.TrimRight(string(resolvedFilename), "\r\n \t"))
+	} else {
+		cmd := exec.Command("bash", "-c", env+"echo -n "+path)
+		cmd.Dir = cwd
+		resolvedFilename, err = cmd.Output()
+	}
 	if err != nil {
 		return "", errors.Wrap(err, "resolving path failed")
 	}

@@ -11,6 +11,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/sp0x/goostest/tools"
 	"gopkg.in/yaml.v2"
 )
 
@@ -164,8 +165,9 @@ func (e EnvVar) String() string {
 
 // AsExport returns the environment variable as a bash export statement
 func (e EnvVar) AsLocalExport() string {
-	if runtime.GOOS == "windows" {
-		return `set ` + e.Key + `="` + e.Value + `" && `
+	hasBash := tools.HasBash()
+	if !hasBash && runtime.GOOS == "windows" {
+		return `set ` + e.Key + `="` + e.Value + `"`
 	} else {
 		return `export ` + e.Key + `="` + e.Value + `";`
 	}
@@ -232,8 +234,9 @@ func (e *EnvList) ResolveValues() error {
 			return err
 		}
 		var resolvedValue []byte
-		if runtime.GOOS == "windows" {
-			cmd := exec.Command("cmd", "/C", exports+"echo "+v.Value+"")
+		hasBash := tools.HasBash()
+		if !hasBash && runtime.GOOS == "windows" {
+			cmd := exec.Command("cmd", "/C", exports+" & echo "+v.Value+"")
 			cmd.Dir = cwd
 			resolvedValue, err = cmd.Output()
 
@@ -256,6 +259,22 @@ func (e *EnvList) ResolveValues() error {
 	}
 
 	return nil
+}
+
+func (e *EnvList) AsLocalExport() string {
+	exports := ``
+	if !tools.HasBash() && runtime.GOOS == "windows" {
+		elist := []string{}
+		for _, v := range *e {
+			elist = append(elist, v.AsLocalExport())
+		}
+		exports = strings.Join(elist, " & ")
+	} else {
+		for _, v := range *e {
+			exports += v.AsExport() + " "
+		}
+	}
+	return exports
 }
 
 func (e *EnvList) AsExport() string {
