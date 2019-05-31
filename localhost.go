@@ -2,6 +2,7 @@ package sup
 
 import (
 	"fmt"
+	"github.com/sp0x/goostest/tools"
 	"io"
 	"os"
 	"os/exec"
@@ -112,7 +113,7 @@ func ResolveLocalPath(cwd, path, env string) (string, error) {
 	// Check if file exists first. Use bash to resolve $ENV_VARs.
 	var resolvedFilename []byte
 	var err error
-	if runtime.GOOS == "windows" {
+	if !tools.HasBash() && runtime.GOOS == "windows" {
 		//return "", fmt.Errorf("windows is not supported right now")
 		cmd := exec.Command("cmd", "/C", env+" & echo "+path)
 		cmd.Dir = cwd

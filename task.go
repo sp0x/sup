@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"os"
 
 	"github.com/pkg/errors"
@@ -15,6 +16,10 @@ type Task struct {
 	Input   io.Reader
 	Clients []Client
 	TTY     bool
+}
+
+func (t *Task) String() string {
+	return fmt.Sprintf("%v", t.Run)
 }
 
 func (sup *Stackup) createTasks(cmd *Command, clients []Client, env string) ([]*Task, error) {
@@ -31,7 +36,9 @@ func (sup *Stackup) createTasks(cmd *Command, clients []Client, env string) ([]*
 		if err != nil {
 			return nil, errors.Wrap(err, "upload: "+upload.Src)
 		}
+		log.Println(fmt.Sprintf("Tarring source: %v %v", cwd, uploadFile))
 		uploadTarReader, err := NewTarStreamReader(cwd, uploadFile, upload.Exc)
+
 		if err != nil {
 			return nil, errors.Wrap(err, "upload: "+upload.Src)
 		}
@@ -41,7 +48,7 @@ func (sup *Stackup) createTasks(cmd *Command, clients []Client, env string) ([]*
 			Input: uploadTarReader,
 			TTY:   false,
 		}
-
+		log.Println(fmt.Sprintf("Tarring: %v", task))
 		if cmd.Once {
 			task.Clients = []Client{clients[0]}
 			tasks = append(tasks, &task)
