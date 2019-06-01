@@ -3,8 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/sp0x/goostest/tools"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"os/user"
 	"path/filepath"
 	"regexp"
@@ -175,7 +177,21 @@ func parseArgs(conf *sup.Supfile) (*sup.Network, []*sup.Command, error) {
 	if os.Getenv("SUP_USER") != "" {
 		network.Env.Set("SUP_USER", os.Getenv("SUP_USER"))
 	} else {
-		network.Env.Set("SUP_USER", os.Getenv("USER"))
+
+		crUser := ""
+		if tools.HasBash() {
+			whoisCmd := exec.Command("bash", "-c", "whoami")
+			out, err := whoisCmd.Output()
+			if err != nil {
+				crUser = os.Getenv("USER")
+			} else {
+				crUser = string(out)
+			}
+		} else {
+			crUser = os.Getenv("USER")
+		}
+		crUser = strings.TrimRight(crUser, "\r\n ")
+		network.Env.Set("SUP_USER", crUser)
 	}
 
 	for _, cmd := range args[1:] {
