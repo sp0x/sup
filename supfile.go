@@ -69,10 +69,11 @@ func (n *Networks) Get(name string) (Network, bool) {
 
 // Command represents command(s) to be run remotely.
 type Command struct {
-	Name   string   `yaml:"-"`      // Command name.
-	Desc   string   `yaml:"desc"`   // Command description.
-	Local  string   `yaml:"local"`  // Command(s) to be run locally.
-	Run    string   `yaml:"run"`    // Command(s) to be run remotelly.
+	Name   string   `yaml:"-"`     // Command name.
+	Desc   string   `yaml:"desc"`  // Command description.
+	Local  string   `yaml:"local"` // Command(s) to be run locally.
+	Run    string   `yaml:"run"`   // Command(s) to be run remotelly.
+	Chdir  string   `yaml:"chdir"`
 	Script string   `yaml:"script"` // Load command(s) from script and run it remotelly.
 	Upload []Upload `yaml:"upload"` // See Upload struct.
 	Stdin  bool     `yaml:"stdin"`  // Attach localhost STDOUT to remote commands' STDIN?

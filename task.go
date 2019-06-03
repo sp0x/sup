@@ -136,6 +136,10 @@ func (sup *Stackup) createTasks(cmd *Command, clients []Client, env string) ([]*
 			Run: cmd.Run,
 			TTY: true,
 		}
+		if cmd.Chdir != "" {
+			chdir := cmd.Chdir // Maybe resolve it?
+			task.Run = fmt.Sprintf("cd %v; ", chdir) + task.Run
+		}
 		if sup.debug {
 			task.Run = "set -x;" + task.Run
 		}

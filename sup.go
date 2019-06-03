@@ -3,6 +3,7 @@ package sup
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"os/signal"
 	"strings"
@@ -136,7 +137,7 @@ func (sup *Stackup) Run(network *Network, envVars EnvList, commands ...*Command)
 						prefix = strings.Repeat(" ", maxLen-prefixLen) + prefix
 					}
 				}
-
+				log.Println("Running task", task)
 				err := c.Run(task)
 				if err != nil {
 					return errors.Wrap(err, prefix+"task failed")
