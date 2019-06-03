@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net"
 	"os"
 	"os/user"
@@ -99,10 +100,12 @@ func (c *SSHClient) initAuthMethod() {
 		}
 		data, err := ioutil.ReadFile(file)
 		if err != nil {
+			log.Println("Ssh key error: ", err)
 			continue
 		}
 		signer, err := ssh.ParsePrivateKey(data)
 		if err != nil {
+			log.Println("Ssh parsing key error: ", err)
 			continue
 		}
 		signers = append(signers, signer)
