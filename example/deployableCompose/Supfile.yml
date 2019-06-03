@@ -62,7 +62,7 @@ commands:
 
   rm:
     desc: Remove Docker container
-    run: sudo docker-compose rm $SERVICE_NAME || exit 0
+    run: sudo docker-compose rm -f $SERVICE_NAME || exit 0
 
   start:
     desc: Start a stopped Docker container
@@ -93,7 +93,7 @@ commands:
     desc: Rolling update (stop & remove old Docker container, run new one)
     run: >
       sudo docker-compose stop $SERVICE_NAME || :; \
-        sudo docker-compose rm $SERVICE_NAME || :; \
+        sudo docker-compose rm -f $SERVICE_NAME || :; \
         sudo docker-compose up -d $SERVICE_NAME
     serial: 1
     chdir: /tmp/$IMAGE
@@ -105,7 +105,7 @@ commands:
 
   logs:
     desc: Docker logs
-    run: sudo docker-compose logs $ | grep $SERVICE_NAME
+    run: sudo docker-compose logs | grep $SERVICE_NAME
     chdir: /tmp/$IMAGE
 
   tail-logs:
