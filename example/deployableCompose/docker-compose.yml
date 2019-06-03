@@ -1,0 +1,24 @@
+version: "3"
+
+volumes:
+  db:
+
+
+services:
+  mysql:
+    image: mysql:5.7.20
+    restart: always
+    volumes:
+      - db:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: thisismypassword
+
+
+  app:
+    build:
+      context: .
+      # specified so that you can run `docker-compose push`
+    image: registry.netlyt.io:5000/netlyt/deployment_test_image
+    restart: always
+    ports:
+      - 8089:5000
