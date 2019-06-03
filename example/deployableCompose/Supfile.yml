@@ -121,7 +121,7 @@ commands:
     desc: Notify Slack about new deployment
     local: >
       curl -X POST --data-urlencode 'payload={"channel": "#dev", "text": "['$SUP_NETWORK'] '$SUP_USER' deployed '$NAME'"}' \
-        https://hooks.slack.com/services/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
+        https://hooks.slack.com/services/ID
 
 
 targets:
