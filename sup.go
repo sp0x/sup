@@ -35,8 +35,6 @@ func (sup *Stackup) Run(network *Network, envVars EnvList, commands ...*Command)
 	if len(commands) == 0 {
 		return errors.New("no commands to be run")
 	}
-
-	//env := envVars.AsExport()
 	env := envVars.AsLocalExport()
 
 	// Create clients for every host (either SSH or Localhost).
