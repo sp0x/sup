@@ -131,6 +131,22 @@ commands:
         upload:
           - src: ./dist
             dst: /tmp/
+            exclude: node_modules,.git
+```
+
+### Download command
+
+Downloads files/directories from remote hosts. Uses `tar` under the hood
+
+```yaml
+#Supfile
+
+commands:
+    downloadlogs:
+        download:
+          - src_folder: /var/log/mylog/
+            src: $SUP_HOST.log
+            dst: /tmp/
 ```
 
 ### Interactive Bash on all hosts

@@ -37,6 +37,7 @@ commands:
     upload:
       - src: ./
         dst: /tmp/$IMAGE
+        exclude: node_modules,.git
     script: ./scripts/docker-build.sh
     once: true
 

@@ -14,6 +14,7 @@ import (
 type Task struct {
 	Run     string
 	Input   io.Reader
+	Output  io.Writer
 	Clients []Client
 	TTY     bool
 }
@@ -49,24 +50,27 @@ func (sup *Stackup) createTasks(cmd *Command, clients []Client, env string) ([]*
 			TTY:   false,
 		}
 		log.Println(fmt.Sprintf("Tarring: %v", task))
-		if cmd.Once {
-			task.Clients = []Client{clients[0]}
-			tasks = append(tasks, &task)
-		} else if cmd.Serial > 0 {
-			// Each "serial" task client group is executed sequentially.
-			for i := 0; i < len(clients); i += cmd.Serial {
-				j := i + cmd.Serial
-				if j > len(clients) {
-					j = len(clients)
-				}
-				copy := task
-				copy.Clients = clients[i:j]
-				tasks = append(tasks, &copy)
-			}
-		} else {
-			task.Clients = clients
-			tasks = append(tasks, &task)
+		addTask(task, cmd, clients, &tasks)
+	}
+
+	for _, download := range cmd.Download {
+		dst, err := ResolveLocalPath(cwd, download.Dst, env)
+		if err != nil {
+			return nil, errors.Wrap(err, "download: "+download.Dst)
 		}
+		tarWriter, err := NewTarStreamWriter(dst)
+		if err != nil {
+			return nil, errors.Wrap(err, "download: "+download.Dst)
+		}
+
+		// todo: support download.Exclude
+		task := Task{
+			Run:    RemoteTarCreateCommand(download.SrcFolder, download.Src),
+			Output: tarWriter,
+			TTY:    false,
+		}
+
+		addTask(task, cmd, clients, &tasks)
 	}
 
 	// Script. Read the file as a multiline input command.
@@ -90,24 +94,7 @@ func (sup *Stackup) createTasks(cmd *Command, clients []Client, env string) ([]*
 		if cmd.Stdin {
 			task.Input = os.Stdin
 		}
-		if cmd.Once {
-			task.Clients = []Client{clients[0]}
-			tasks = append(tasks, &task)
-		} else if cmd.Serial > 0 {
-			// Each "serial" task client group is executed sequentially.
-			for i := 0; i < len(clients); i += cmd.Serial {
-				j := i + cmd.Serial
-				if j > len(clients) {
-					j = len(clients)
-				}
-				copy := task
-				copy.Clients = clients[i:j]
-				tasks = append(tasks, &copy)
-			}
-		} else {
-			task.Clients = clients
-			tasks = append(tasks, &task)
-		}
+		addTask(task, cmd, clients, &tasks)
 	}
 
 	// Local command.
@@ -146,27 +133,31 @@ func (sup *Stackup) createTasks(cmd *Command, clients []Client, env string) ([]*
 		if cmd.Stdin {
 			task.Input = os.Stdin
 		}
-		if cmd.Once {
-			task.Clients = []Client{clients[0]}
-			tasks = append(tasks, &task)
-		} else if cmd.Serial > 0 {
-			// Each "serial" task client group is executed sequentially.
-			for i := 0; i < len(clients); i += cmd.Serial {
-				j := i + cmd.Serial
-				if j > len(clients) {
-					j = len(clients)
-				}
-				copy := task
-				copy.Clients = clients[i:j]
-				tasks = append(tasks, &copy)
-			}
-		} else {
-			task.Clients = clients
-			tasks = append(tasks, &task)
-		}
+		addTask(task, cmd, clients, &tasks)
 	}
 
 	return tasks, nil
+}
+
+func addTask(task Task, cmd *Command, clients []Client, tasks *[]*Task) {
+	if cmd.Once {
+		task.Clients = []Client{clients[0]}
+		*tasks = append(*tasks, &task)
+	} else if cmd.Serial > 0 {
+		// Each "serial" task client group is executed sequentially.
+		for i := 0; i < len(clients); i += cmd.Serial {
+			j := i + cmd.Serial
+			if j > len(clients) {
+				j = len(clients)
+			}
+			copy := task
+			copy.Clients = clients[i:j]
+			*tasks = append(*tasks, &copy)
+		}
+	} else {
+		task.Clients = clients
+		*tasks = append(*tasks, &task)
+	}
 }
 
 type ErrTask struct {
