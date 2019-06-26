@@ -95,10 +95,10 @@ func (c *SSHClient) initAuthMethod() {
 	// Try to read user's SSH private keys form the standard paths.
 	files, _ := filepath.Glob(os.Getenv("HOME") + "/.ssh/id_*")
 	for _, file := range append(files, c.identityFile) {
+		log.Println(fmt.Sprintf("Trying key: %v", file))
 		if strings.HasSuffix(file, ".pub") {
 			continue // Skip public keys.
 		}
-		log.Println(fmt.Sprintf("Trying key: %v", file))
 		data, err := ioutil.ReadFile(file)
 		if err != nil {
 			log.Println("Ssh key error: ", err)
