@@ -98,6 +98,7 @@ func (c *SSHClient) initAuthMethod() {
 		if strings.HasSuffix(file, ".pub") {
 			continue // Skip public keys.
 		}
+		log.Println(fmt.Sprintf("Trying key: %v", file))
 		data, err := ioutil.ReadFile(file)
 		if err != nil {
 			log.Println("Ssh key error: ", err)
