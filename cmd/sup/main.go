@@ -56,7 +56,7 @@ func init() {
 	flag.StringVar(&supfile, "f", "", "Custom path to ./Supfile[.yml]")
 	flag.Var(&envVars, "e", "Set environment variables")
 	flag.Var(&envVars, "env", "Set environment variables")
-	flag.StringVar(&sshConfig, "sshconfig", "", "Read SSH Config file, ie. ~/.ssh/config file")
+	flag.StringVar(&sshConfig, "sshconfig", "~/.ssh/config", "Read SSH Config file, ie. ~/.ssh/config file")
 	flag.StringVar(&onlyHosts, "only", "", "Filter hosts using regexp")
 	flag.StringVar(&exceptHosts, "except", "", "Filter out hosts using regexp")
 	flag.StringVar(&sshPrivateKey, "key", "~/.ssh/id_rsa", "A ssh private key that can be used for auth.")
@@ -323,6 +323,7 @@ func main() {
 
 	// --sshconfig flag location for ssh_config file
 	if sshConfig != "" {
+		//Get the configured hosts
 		confHosts, err := sshconfig.ParseSSHConfig(resolvePath(sshConfig))
 		if err != nil {
 			fmt.Fprintln(os.Stderr, fmt.Sprintf("Couldn't open ssh config: %v", err))
