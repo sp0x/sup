@@ -1,0 +1,16 @@
+# github.com/goware/prefixer v0.0.0-20160118172347-395022866408
+github.com/goware/prefixer
+# github.com/mikkeloscar/sshconfig v0.0.0-20161223095632-fc5e37b16b68
+github.com/mikkeloscar/sshconfig
+# github.com/pkg/errors v0.0.0-20160627222352-a2d6902c6d2a
+github.com/pkg/errors
+# github.com/sp0x/goostest v0.0.0-20190531111148-3b6dab08e550
+github.com/sp0x/goostest/tools
+# golang.org/x/crypto v0.0.0-20160804082612-7a1054f3ac58
+golang.org/x/crypto/ssh
+golang.org/x/crypto/ssh/agent
+golang.org/x/crypto/curve25519
+golang.org/x/crypto/ed25519
+golang.org/x/crypto/ed25519/internal/edwards25519
+# gopkg.in/yaml.v2 v2.0.0-20160301204022-a83829b6f129
+gopkg.in/yaml.v2
