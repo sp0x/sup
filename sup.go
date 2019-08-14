@@ -14,7 +14,7 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-const VERSION = "0.5"
+const VERSION = "0.5.0.1"
 
 type Stackup struct {
 	conf   *Supfile
