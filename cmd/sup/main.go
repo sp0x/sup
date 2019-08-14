@@ -325,28 +325,28 @@ func main() {
 	if sshConfig != "" {
 		confHosts, err := sshconfig.ParseSSHConfig(resolvePath(sshConfig))
 		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
+			fmt.Fprintln(os.Stderr, fmt.Sprintf("Couldn't open ssh config: %v", err))
+		} else {
+			// flatten Host -> *SSHHost, not the prettiest
+			// but will do
+			confMap := map[string]*sshconfig.SSHHost{}
+			for _, conf := range confHosts {
+				for _, host := range conf.Host {
+					confMap[host] = conf
+				}
+			}
 
-		// flatten Host -> *SSHHost, not the prettiest
-		// but will do
-		confMap := map[string]*sshconfig.SSHHost{}
-		for _, conf := range confHosts {
-			for _, host := range conf.Host {
-				confMap[host] = conf
+			// check network.Hosts for match
+			for _, host := range network.Hosts {
+				conf, found := confMap[host]
+				if found {
+					network.User = conf.User
+					network.IdentityFile = resolvePath(conf.IdentityFile)
+					network.Hosts = []string{fmt.Sprintf("%s:%d", conf.HostName, conf.Port)}
+				}
 			}
 		}
 
-		// check network.Hosts for match
-		for _, host := range network.Hosts {
-			conf, found := confMap[host]
-			if found {
-				network.User = conf.User
-				network.IdentityFile = resolvePath(conf.IdentityFile)
-				network.Hosts = []string{fmt.Sprintf("%s:%d", conf.HostName, conf.Port)}
-			}
-		}
 	}
 
 	if sshPrivateKey != "" {
