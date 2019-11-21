@@ -13,7 +13,6 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: thisismypassword
 
-
   app:
     build:
       context: .
