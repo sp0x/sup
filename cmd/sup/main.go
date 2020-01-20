@@ -59,7 +59,7 @@ func init() {
 	flag.StringVar(&sshConfig, "sshconfig", "~/.ssh/config", "Read SSH Config file, ie. ~/.ssh/config file")
 	flag.StringVar(&onlyHosts, "only", "", "Filter hosts using regexp")
 	flag.StringVar(&exceptHosts, "except", "", "Filter out hosts using regexp")
-	flag.StringVar(&sshPrivateKey, "key", "~/.ssh/id_rsa", "A ssh private key that can be used for auth.")
+	flag.StringVar(&sshPrivateKey, "key", "", "A ssh private key that can be used for auth.")
 
 	flag.BoolVar(&debug, "D", false, "Enable debug mode")
 	flag.BoolVar(&debug, "debug", false, "Enable debug mode")

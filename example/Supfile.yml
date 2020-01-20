@@ -15,18 +15,18 @@ networks:
   # Groups of hosts
   local:
     hosts:
-      - gcp.netlyt.io
+      - 3.19.142.199
 
   dev:
     env:
       # Extra environment variable for dev hosts only
       DOCKER_HOST: tcp://127.0.0.1:2375
     hosts:
-      - docker@192.168.59.103
+      - 192.168.59.103
 
   stg:
     hosts:
-        - v_m_naydenova@35.243.173.143
+        - 3.19.142.199
 
   prod:
     inventory: for i in 1 2 3 4; do echo "ubuntu@prod$i.example.com"; done
